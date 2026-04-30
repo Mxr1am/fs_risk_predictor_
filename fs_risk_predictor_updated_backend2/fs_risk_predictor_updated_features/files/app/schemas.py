@@ -25,6 +25,20 @@ class LoginRequest(BaseModel):
     team_name: str = Field(..., min_length=1)
     password: str = Field(..., min_length=1)
 
+class UpdateProfileRequest(BaseModel):
+    team_leader_name: Optional[str] = Field(default=None, min_length=1)
+    email: Optional[EmailStr] = None
+
+    @field_validator("team_leader_name")
+    @classmethod
+    def strip_team_leader_name(cls, value: Optional[str]):
+        if value is None:
+            return value
+        value = value.strip()
+        if not value:
+            raise ValueError("team leader name cannot be empty")
+        return value
+
 class EngineInput(BaseModel):
     engine_temp_c: float = Field(..., ge=40, le=150)
     oil_pressure_psi: float = Field(..., ge=8, le=80)

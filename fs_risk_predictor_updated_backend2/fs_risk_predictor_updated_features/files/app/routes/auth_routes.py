@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Header
 from app.controllers import user_controller
 from app.middleware.authentication import get_current_user
-from app.schemas import RegisterRequest, LoginRequest
+from app.schemas import RegisterRequest, LoginRequest, UpdateProfileRequest
 
 router = APIRouter(tags=["Authentication"])
 
@@ -16,3 +16,10 @@ def login(payload: LoginRequest):
 @router.post("/logout")
 def logout(current_user: dict = Depends(get_current_user), x_authorization: str | None = Header(default=None, alias="X-Authorization")):
     return user_controller.logout(x_authorization)
+
+@router.patch("/profile")
+def update_profile(
+    payload: UpdateProfileRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    return user_controller.update_profile(payload, current_user)

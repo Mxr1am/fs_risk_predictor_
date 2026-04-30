@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from app.models.history_model import save_test, get_history
+from app.models.history_model import save_test, get_history, delete_test, delete_all_history
 from app.schemas import PredictionRequest
 from app.services.prediction_service import allowed_components_for_car_type, predict_component
 
@@ -26,3 +26,27 @@ def run_prediction(payload: PredictionRequest, current_user: dict):
 
 def history(current_user: dict):
     return {"history": get_history(current_user["user_id"])}
+    
+
+def delete_history_item(test_id: int, current_user: dict):
+    deleted = delete_test(current_user["user_id"], test_id)
+
+    if not deleted:
+        raise HTTPException(
+            status_code=404,
+            detail="test history item not found"
+        )
+
+    return {
+        "message": "test history item deleted",
+        "test_id": test_id
+    }
+
+
+def clear_history(current_user: dict):
+    deleted_count = delete_all_history(current_user["user_id"])
+
+    return {
+        "message": "test history cleared",
+        "deleted_count": deleted_count
+    }

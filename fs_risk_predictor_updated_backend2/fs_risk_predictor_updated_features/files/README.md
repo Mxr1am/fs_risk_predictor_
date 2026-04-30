@@ -27,6 +27,9 @@ These scores are high because the dataset is synthetic and the failure labels ar
 # 1. Install dependencies
 pip install flask scikit-learn numpy pandas joblib
 
+or
+
+pip install -r requirements.txt
 # 2. Generate dataset
 python generate_dataset.py
 
@@ -36,6 +39,8 @@ python train_model.py
 # 4. Start the server
 python app.py
 # Running on http://localhost:5050
+
+or python -m uvicorn app.main:app --reload --port 3333
 
 # 5. Open the app
 # Visit http://localhost:5050 in your browser

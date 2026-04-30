@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from app.models import user_model
-from app.schemas import RegisterRequest, LoginRequest
+from app.schemas import RegisterRequest, LoginRequest, UpdateProfileRequest
 
 def create_account(payload: RegisterRequest):
     try:
@@ -23,3 +23,17 @@ def logout(token: str | None):
         raise HTTPException(status_code=400, detail="missing X-Authorization token")
     user_model.remove_token(token)
     return {"message": "logged out"}
+
+def update_profile(payload: UpdateProfileRequest, current_user: dict):
+    try:
+        updated_user = user_model.update_profile(
+            current_user["user_id"],
+            payload.model_dump(exclude_unset=True)
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+    return {
+        "message": "profile updated",
+        "user": updated_user
+    }
