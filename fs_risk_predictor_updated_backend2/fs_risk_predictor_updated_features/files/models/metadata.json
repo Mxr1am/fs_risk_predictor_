@@ -1,0 +1,61 @@
+{
+  "engine": {
+    "features": [
+      "engine_temp_c",
+      "oil_pressure_psi",
+      "engine_rpm",
+      "vibration_g",
+      "coolant_temp_c"
+    ],
+    "target": "engine_failure",
+    "auc_test": 0.9925,
+    "auc_cv": 0.9891,
+    "failure_rate": 0.12,
+    "n_samples": 8000,
+    "feature_importance": {
+      "engine_temp_c": 0.3703,
+      "vibration_g": 0.2518,
+      "oil_pressure_psi": 0.1346,
+      "engine_rpm": 0.1332,
+      "coolant_temp_c": 0.1101
+    }
+  },
+  "brake": {
+    "features": [
+      "brake_temp_c",
+      "brake_pad_wear_mm",
+      "brake_fluid_psi",
+      "brake_fade_idx"
+    ],
+    "target": "brake_failure",
+    "auc_test": 0.9904,
+    "auc_cv": 0.9927,
+    "failure_rate": 0.12,
+    "n_samples": 8000,
+    "feature_importance": {
+      "brake_temp_c": 0.4701,
+      "brake_pad_wear_mm": 0.2596,
+      "brake_fade_idx": 0.189,
+      "brake_fluid_psi": 0.0812
+    }
+  },
+  "battery": {
+    "features": [
+      "battery_voltage_v",
+      "battery_temp_c",
+      "battery_current_a",
+      "battery_health_pct"
+    ],
+    "target": "battery_failure",
+    "auc_test": 0.9938,
+    "auc_cv": 0.9926,
+    "failure_rate": 0.12,
+    "n_samples": 8000,
+    "feature_importance": {
+      "battery_voltage_v": 0.3538,
+      "battery_temp_c": 0.2747,
+      "battery_current_a": 0.2119,
+      "battery_health_pct": 0.1596
+    }
+  }
+}

@@ -1,0 +1,48 @@
+POST http://127.0.0.1:3333/users
+Content-Type: application/json
+
+{
+  "team_name": "MMU EV Racing",
+  "team_leader_name": "Alex Smith",
+  "car_type": "EV",
+  "email": "ev@example.com",
+  "password": "password123"
+}
+
+### Login
+POST http://127.0.0.1:3333/login
+Content-Type: application/json
+
+{
+  "team_name": "MMU EV Racing",
+  "password": "password123"
+}
+
+### Dashboard
+GET http://127.0.0.1:3333/dashboard
+X-Authorization: paste_token_here
+
+### EV prediction and save result
+POST http://127.0.0.1:3333/predict
+Content-Type: application/json
+X-Authorization: paste_token_here
+
+{
+  "brake": {
+    "brake_temp_c": 520,
+    "brake_pad_wear_mm": 7.5,
+    "brake_fluid_psi": 450,
+    "brake_fade_idx": 0.95
+  },
+  "battery": {
+    "battery_voltage_v": 9.5,
+    "battery_temp_c": 70,
+    "battery_current_a": 85,
+    "battery_health_pct": 30
+  },
+  "save_result": true
+}
+
+### History
+GET http://127.0.0.1:3333/history
+X-Authorization: paste_token_here
