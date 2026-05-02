@@ -4,7 +4,7 @@ from app.schemas import PredictionRequest
 from app.services.prediction_service import allowed_components_for_car_type, predict_component
 
 def get_dashboard(current_user: dict):
-    return {"team_name": current_user["team_name"], "team_leader_name": current_user["team_leader_name"], "car_type": current_user["car_type"], "available_components": allowed_components_for_car_type(current_user["car_type"])}
+    return {"team_name": current_user["team_name"], "team_leader_name": current_user["team_leader_name"], "car_type": current_user["car_type"], "available_components": allowed_components_for_car_type(current_user["car_type"]), "email": current_user["email"]}
 
 def run_prediction(payload: PredictionRequest, current_user: dict):
     allowed_components = allowed_components_for_car_type(current_user["car_type"])

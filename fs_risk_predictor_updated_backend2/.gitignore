@@ -1,0 +1,24 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Database 
+db.sqlite
+
+# Training data and scripts output (not needed at runtime)
+#fs_telemetry_data.csv
+#model_comparison_results.csv
+
+# Environment
+.env
+.env.local
+
+
+.vscode/
+.idea/
+
+#
+.DS_Store
+Thumbs.db

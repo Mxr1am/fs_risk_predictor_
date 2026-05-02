@@ -34,26 +34,6 @@ def predict_case(name, engine_vals, brake_vals, battery_vals):
 
 
 
-# FEATURE ORDER (IMPORTANT)
-#
-# Engine:
-# engine_temp_c
-# oil_pressure_psi
-# engine_rpm
-# vibration_g
-# coolant_temp_c
-#
-# Brake:
-# brake_temp_c
-# brake_pad_wear_mm
-# brake_fluid_psi
-# brake_fade_idx
-#
-# Battery:
-# battery_voltage_v
-# battery_temp_c
-# battery_current_a
-# battery_health_pct
 
 
 

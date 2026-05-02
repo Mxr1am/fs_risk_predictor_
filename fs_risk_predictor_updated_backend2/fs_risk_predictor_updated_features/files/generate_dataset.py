@@ -12,34 +12,24 @@ def normal(loc, scale, low, high, n=N):
     return np.clip(np.random.normal(loc, scale, n), low, high)
 
 
-# -----------------------------------------------------------------------------
-# Synthetic Formula Student telemetry dataset
-# -----------------------------------------------------------------------------
-# The feature list has deliberately been reduced to the direct engineering
-# indicators that are easiest to justify for each component.
-#
-# Engine risk uses: high engine temperature, low oil pressure, high RPM,
-# high vibration, and high coolant temperature.
-# Brake risk uses: high brake temperature, high pad wear, low hydraulic fluid
-# pressure, and high brake fade.
-# Battery risk uses: low voltage, high temperature, high current draw, and low
-# battery state of health.
-# -----------------------------------------------------------------------------
 
-# ENGINE FEATURES (slightly tightened extremes)
+# Synthetic Formula Student telemetry dataset
+# ----------------
+
+# ENGINE FEATURES 
 engine_temp_c = normal(90, 18, 50, 140, N)
 oil_pressure_psi = normal(55, 12, 12, 80, N)
 engine_rpm = normal(7000, 2500, 1000, 14000, N)
 vibration_g = normal(1.2, 0.9, 0.1, 6.0, N)
 coolant_temp_c = normal(85, 12, 50, 120, N)
 
-# BRAKE FEATURES (reduce unrealistic extremes)
+# BRAKE FEATURES 
 brake_temp_c = normal(220, 110, 50, 520, N)
 brake_pad_wear_mm = normal(2.5, 1.8, 0.0, 8.0, N)
 brake_fluid_psi = normal(1000, 150, 500, 1400, N)
 brake_fade_idx = normal(0.2, 0.12, 0.0, 1.0, N)
 
-# BATTERY FEATURES (more realistic EV ranges)
+# BATTERY FEATURES 
 battery_voltage_v = normal(13.0, 1.0, 10.5, 14.5, N)
 battery_temp_c = normal(30, 8, 10, 65, N)
 battery_current_a = normal(25, 15, 0, 80, N)
@@ -91,7 +81,7 @@ battery_raw = risk_score(
     ]
 )
 
-# Mark the highest-risk 12% of rows as failures for each component.
+#  highest-risk 12% of rows as failures for each component.
 engine_failure = (engine_raw >= np.percentile(engine_raw, 88)).astype(int)
 brake_failure = (brake_raw >= np.percentile(brake_raw, 88)).astype(int)
 battery_failure = (battery_raw >= np.percentile(battery_raw, 88)).astype(int)
