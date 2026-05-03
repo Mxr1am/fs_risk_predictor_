@@ -1,90 +1,108 @@
-# FS Risk Predictor — Formula Student Component Failure Prediction
+markdown# Formula Student Risk Predictor — Backend
 
-## What it does
-Predicts the risk of **engine**, **brake**, and **battery** failure using a reduced set of direct telemetry indicators for each component.
+FastAPI service that predicts component failure risk using Random
+Forest models trained on synthetic Formula Student telemetry data.
 
-This version uses fewer features than the original so the model is easier to explain and defend from an engineering point of view.
+## Requirements
 
-## Model: Random Forest Classifier
-- **Algorithm:** Random Forest classifier
-- **Trees:** 80 decision trees
-- **Class balance:** `class_weight='balanced'`
-- **Train/test split:** 80% training data, 20% testing data
-- **3 separate models:** one for engine, one for brakes, one for battery
-
-## Current performance after feature reduction
-| Component | Test ROC-AUC | 3-fold CV AUC | F1 Failure |
-|---|---:|---:|---:|
-| Engine | 0.9894 | 0.9882 | 0.88 |
-| Brake | 0.9935 | 0.9939 | 0.89 |
-| Battery | 0.9960 | 0.9934 | 0.92 |
-
-These scores are high because the dataset is synthetic and the failure labels are generated from the same engineering rules that the model learns from. This is suitable for a prototype/demo, but real car telemetry would be needed for real-world validation.
+- Python 3.10 or higher
+- pip
 
 ## Setup
 
 ```bash
-# 1. Install dependencies
-pip install flask scikit-learn numpy pandas joblib
-
-or
-
 pip install -r requirements.txt
-# 2. Generate dataset
-python generate_dataset.py
-
-# 3. Train models
-python train_model.py
-
-# 4. Start the server
-python app.py
-# Running on http://localhost:5050
-
-or python -m uvicorn app.main:app --reload --port 3333
-
-# 5. Open the app
-# Visit http://localhost:5050 in your browser
 ```
 
-## Dataset description
-`generate_dataset.py` creates 8,000 synthetic telemetry samples.
+## Run
 
-### Engine features kept
-- `engine_temp_c`
-- `oil_pressure_psi`
-- `engine_rpm`
-- `vibration_g`
-- `coolant_temp_c`
+```bash
+uvicorn app.main:app --reload --port 3333
+```
 
-**Engine failure rule:** risk increases with high engine temperature, high RPM, high vibration, high coolant temperature, and low oil pressure.
+The API will be available at `http://127.0.0.1:3333`.
 
-### Brake features kept
-- `brake_temp_c`
-- `brake_pad_wear_mm`
-- `brake_fluid_psi`
-- `brake_fade_idx`
+A health check confirms it's running:
+GET http://127.0.0.1:3333/   →   {"status": "Alive"}
 
-**Brake failure rule:** risk increases with high brake temperature, high brake pad wear, high brake fade, and low brake fluid pressure.
+## Project Layout
+app/
+main.py                  - FastAPI app entry, CORS, route registration
+database.py              - SQLite schema and connection
+schemas.py               - Pydantic request/response models
+routes/                  - HTTP route definitions
+auth_routes.py         - register, login, logout, profile
+prediction_routes.py   - predict, dashboard, history
+controllers/             - Request handling logic
+services/
+prediction_service.py  - Loads .pkl models, runs predict_proba
+models/                  - Database access functions (users, history)
+middleware/
+authentication.py      - Token validation for protected routes
+utils/
+security.py            - Password hashing and token generation
+models/                    - Trained Random Forest .pkl files
+db.sqlite                  - SQLite database file
+tests/
+test_api.py              - 13 integration tests
+train_model.py             - Script to retrain Random Forest models
+generate_dataset.py        - Script to regenerate synthetic dataset
+fs_telemetry_data.csv      - Synthetic training data (8,000 rows)
 
-Note: in this version, `brake_pad_wear_mm` means the **amount of pad material worn away**, so a higher value is worse.
+## API Endpoints
 
-### Battery features kept
-- `battery_voltage_v`
-- `battery_temp_c`
-- `battery_current_a`
-- `battery_health_pct`
+| Method | Endpoint              | Auth | Purpose                        |
+|--------|-----------------------|------|--------------------------------|
+| POST   | /users                | No   | Register a new team            |
+| POST   | /login                | No   | Authenticate, return token     |
+| POST   | /logout               | Yes  | Invalidate session token       |
+| PATCH  | /profile              | Yes  | Update team leader / email     |
+| GET    | /dashboard            | Yes  | Team info + components allowed |
+| POST   | /predict              | Yes  | Run risk prediction            |
+| GET    | /history              | Yes  | Saved prediction history       |
+| DELETE | /history/{test_id}    | Yes  | Delete a single saved test     |
+| DELETE | /history              | Yes  | Clear all saved tests          |
 
-**Battery failure rule:** risk increases with low voltage, high battery temperature, high current draw, and low battery health.
+Authenticated endpoints require an `X-Authorization: <token>` header.
 
-## Files
-- `generate_dataset.py` — creates the synthetic CSV dataset
-- `train_model.py` — trains the 3 Random Forest models
-- `app.py` — Flask backend API
-- `index.html` — frontend dashboard
-- `models/` — saved model files and metadata
-- `fs_telemetry_data.csv` — generated synthetic dataset
+## Machine Learning
 
-## API
-`POST /predict`
+Three separate Random Forest classifiers — one per component
+(engine, brake, battery). Each trained with:
+- 80 decision trees (n_estimators=80)
+- max_depth=12, min_samples_leaf=5
+- class_weight="balanced" to handle 12% failure rate
+- Evaluated using ROC-AUC, not accuracy
 
-JSON body should include only the selected telemetry fields above. The API returns risk percentages for engine, brake, and battery, plus sensor warnings.
+The training pipeline is in `train_model.py`. The dataset is
+generated by `generate_dataset.py` using engineering-grounded
+weighted rules where each telemetry feature contributes to overall
+failure probability based on its real-world significance (e.g.
+engine temperature has weight 0.26 because thermal overload is
+the primary cause of engine failure).
+
+## Testing
+
+```bash
+pip install pytest httpx
+pytest tests/test_api.py -v
+```
+
+13 integration tests covering:
+- Registration (duplicates, invalid email, whitespace-only names)
+- Login and authentication (wrong password, missing/fake tokens)
+- Schema validation (out-of-range telemetry values)
+- Car-type restriction (EV cannot predict engine, MECH cannot predict battery)
+- Valid end-to-end prediction returning a 0–100 score
+
+## Deployment
+
+Deployed on Render (free tier) at:
+https://fs-risk-predictor.onrender.com
+
+Render configuration:
+- Runtime: Python 3
+- Build command: `pip install -r requirements.txt`
+- Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+
+
